@@ -52,3 +52,37 @@ public partial class MyNode : Node
 }
 ```
 
+### DependencyResolver
+
+This source generator generates code to automatically resolve dependencies targeting Godot globals (aka autoload or singletons) in your `Node` scripts.
+Think of this as a simple dependency injection system for your Godot project. 
+
+> [!NOTE]  
+> As this generator relies on the `GetTree()` method, `[InjectDependency]` attribute can only be used in scripts that inherit from `Node` (so not in raw C# classes).
+
+For example, if you add the `HappinessManager` class as a global node in your project, you'll be able to inject it in your scripts using the `[InjectDependency]` attribute.
+
+```csharp
+using Godot;
+using Codartesien.SourceGenerators;
+
+public partial class MyNode : Node
+{
+    [InjectDependency]
+    private HappinessManager _happinessManager;
+
+    public override void _Ready()
+    {
+        base._Ready();
+        ResolveDependencies();
+        
+        _happinessManager.DoSomething();
+    }
+}
+```
+
+You can use the `[InjectDependency]` attribute on any property which related to a global node in your project.
+
+Under the hood, the source generator creates a dictionary of all children of the `root` node and inject them in the fields marked with the `[InjectDependency]` attribute.
+
+
